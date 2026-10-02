@@ -1,0 +1,13 @@
+{
+  "name": "plugin.random",
+  "slug": "random",
+  "source": "random",
+  "world": "gams:random/random-provider@1.0.0",
+  "binding": "random_provider",
+  "members": [
+    "random"
+  ],
+  "artifacts": [
+    "plugin.random.wasm"
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "plugins/random.comp/component.c": "0b4aabca4271c4ce4816b889e8ae8eff27c7b167bcb64f10cf57cafac72c2955",
+  "plugins/random.comp/plugin.mk": "0ce395858fff6a94cf883f9eba7ee49075eb7c75ca0dd0502b396a9d0af34892",
+  "plugins/random.comp/wit/deps/wasi-random-0.2.0/package.wit": "0e3b8c04dbe72b6769950d82676039ef6a57cc6b73d18983847bc15ef2dec878",
+  "plugins/random.comp/wit/package.wit": "25f93094447145cd3a534495eb53b8b1e349b164fdbb9d3af7e3aade16f2e024",
+  "plugins/random.comp/wkg.lock": "6df21c33dcad28b1c9e917ddc187425b90180eb28dfc1cef288d4707ae07f6bb"
+}
