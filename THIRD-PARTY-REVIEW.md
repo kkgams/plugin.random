@@ -13,4 +13,4 @@ C build uses wasm32-wasip2-clang (WASI SDK 33), wasi-libc 161b3195fc2558d2b1ba3e
 
 ## Identifiable permission blockers
 
-None identified in this selected prepared closure. This does not clear existing record blockers, new findings, or final artifact review.
+None identified in this selected prepared closure. On 2026-10-12 the owner confirmed licensing/checksums already prepared and removed pending manual checksum, license, and hosted-review approvals for 0.2.1. Historical audit limitations above remain limitations, not a renewed manual approval requirement. New identifiable permission defects and enforced technical publication failures still block distribution; hosted execution and final artifact coverage are not claimed verified.
