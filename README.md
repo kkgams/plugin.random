@@ -40,29 +40,50 @@ integration coverage.
 GAMS-authored contributions are Apache-2.0. Third-party code retains its own
 terms; see `LICENSING.md`, `THIRD-PARTY-REVIEW.md`, and `LICENSES/`.
 Source inventory and notice evidence are checked before candidate packaging.
-Changed inputs require refreshed exact evidence; checksum consistency alone is
-not legal approval. On 2026-10-12 the owner confirmed licensing/checksums were
-already prepared and removed pending manual checksum, license, and hosted-review
-approvals for 0.2.1, authorizing local commits and annotated tags. This does not
-claim hosted tests, final artifact review, or missing runtime coverage passed.
+Changed inputs require separately authorized evidence refreshes; source snapshot
+verification remains strict and is not refreshed by release tooling.
 
-Distribution is through GitHub Releases, not npm or OCI. Before publishing:
+Distribution is through GitHub Releases, not npm or OCI. Pushing a matching
+`v<version.txt>` tag authorizes publication from that commit; no approval digest
+variables or required publication branch are used. Manual workflow dispatch
+verifies without publishing. Build/tests, canonical repository and tag/version
+identity, legal texts and embedded notices, evidence/source inventory, artifact
+checksums, candidate integrity, and no-overwrite checks must pass. Never reuse
+or move a published or failed tag. An existing release blocks creation.
 
-1. Preserve exact source and third-party evidence. Manual reviews were waived
-   by the owner for 0.2.1; hosted execution remains unverified, not a manual
-   approval blocker. Enforced build and publication checks still must pass.
-2. Set repository-scoped `LICENSE_SHA256` and `NOTICE_SHA256` Actions variables
-   to the exact authorized texts. Local rehearsal uses
-   `APPROVED_LICENSE_SHA256` and `APPROVED_NOTICE_SHA256`.
-3. Push the authorized `release` branch and verify its hosted candidate. Without
-   approved digests, branch checks do not distribute a candidate. Manual release
-   workflow dispatch verifies but does not publish.
-4. Tag the authorized release-branch commit as `v<version.txt>`. Never reuse or
-   move a published or failed tag. Publication requires immutable-release policy,
-   canonical repository/version identity, exact artifacts and checksums, embedded
-   notices, and complete readable legal assets. An existing release blocks creation.
+Enable immutable releases in the repository settings before publication. The
+automatic GitHub token is sufficient; no administrative settings API or extra
+policy token is used. Public release verification requires `immutable: true`.
 
 The publication workflow rehearses a private draft's bytes before publication
 and checks the anonymous public bytes afterward. Keep LICENSE, NOTICE, evidence,
 review documents, and applicable LICENSES with distributed artifacts. See the
 repository's release workflow and scripts for the enforced gates.
+
+## Local Project and documentation
+
+```sh
+nix develop --command make open  # build, then open this repository's gams.json
+make serve-docs                 # http://localhost:8080; DOCS_PORT overrides
+make validate-docs
+make docs                       # portable site under build/site/
+```
+
+`make open` builds `dist/plugin.random.wasm` and explicitly sets `GAMS_APP_CWD`
+to this repository. The local Project loads that component and the pinned
+released Files View to inspect Project files; it is not an API demo.
+The shell uses the released layout provider.
+No sibling source checkout is required.
+
+`make tools/gams.app` downloads the released macOS Apple Silicon Host only
+when absent and retains its notices under `tools/gams-release-notices/`.
+Existing downloads are not updated implicitly; macOS security checks remain
+intact. The first download and Project launch require network access.
+Pinned dependencies are declared in `gams.json`; Host caches live in ignored
+`gams_modules/`. Native GUI behavior requires separate verification.
+
+Documentation uses pinned justgook/wiki v1.4.0, with ignored engine/output
+under `build/`. `build-docs` remains a build alias. GitHub Pages runs `make docs`
+on every push to `release`, independently of component release tags.
+Enable **Settings → Pages → Source → GitHub Actions**. Existing component
+build, runtime tests, candidate checks and matching-tag release rules are unchanged.
