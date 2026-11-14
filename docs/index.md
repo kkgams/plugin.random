@@ -1,44 +1,34 @@
 ---
-title: Development
+title: plugin.random
+description: Seeded random generation.
 status: reference
 ---
 
-# plugin.random development
+# plugin.random
 
-Build and verify the component with its pinned toolchain:
+Seeded random generation for [GAMS](https://github.com/kkgams/gams).
 
-```sh
-nix develop --command make build
-nix develop --command make test
-```
+| Unit | Source | Original work |
+| --- | --- | --- |
+| Random provider | `plugins/random.comp/` | GAMS and WASI specification contributors |
 
-## Local Project and documentation
+## Development
 
-```sh
-nix develop --command make open  # build, then open this repository's gams.json
-make serve-docs                 # http://localhost:8080; DOCS_PORT overrides
-make validate-docs
-make docs                       # portable site under build/site/
-```
+Use the pinned toolchain with `nix develop --command make <target>`.
 
-`make open` builds `dist/plugin.random.wasm` and explicitly sets `GAMS_APP_CWD`
-to this repository. The local Project loads that component and the pinned
-released Files View to inspect Project files; it is not an API demo.
-The shell uses the released layout provider.
-No sibling source checkout is required.
+| Command | Purpose |
+| --- | --- |
+| `make test` | Run native C and stateful Wasmtime component assertions. |
+| `make build` | Compile the C/WASI component with embedded complete terms. |
+| `make package` | Build `build.nosync/plugin.random.wasm`, `LICENSES.zip` and `SHA256SUMS`. |
+| `make open` | Build and open the local Project in the released macOS Apple Silicon Host. |
+| `make docs` | Build the pinned wiki in `build.nosync/site/`. |
+| `make serve-docs` | Serve docs; independent `DOCS_PORT` defaults to 8080. |
+| `make validate-docs` | Validate wiki content. |
+| `make clean` | Remove build.nosync and identified managed downloads; refuse tracked paths and symlinks, preserve supplied tools/Units. |
 
-`make tools/gams.app` downloads the released macOS Apple Silicon Host only
-when absent and retains its notices under `tools/gams-release-notices/`.
-Existing downloads are not updated implicitly; macOS security checks remain
-intact. The first download and Project launch require network access.
-Pinned dependencies are declared in `gams.json`; Host caches live in ignored
-`gams_modules/`. Native GUI behavior requires separate verification.
+The local Files View browses the Project; it is not a random-generation demo. First launch downloads pinned supporting Units. An existing Host is never updated implicitly. `make test` checks deterministic seed replay, returned byte length and seed readback both directly in C and through the component ABI using a native Rust/Wasmtime test with one persistent store/instance. These bounded tests do not establish Host integration coverage.
 
-Documentation uses pinned justgook/wiki v1.4.0, with ignored engine/output
-under `build/`. `build-docs` remains a build alias. GitHub Pages runs `make docs`
-on every push to `release`, independently of component release tags.
-Enable **Settings → Pages → Source → GitHub Actions**. Existing component
-build, runtime tests, candidate checks and matching-tag release rules are unchanged.
+## API
 
-See the repository README and licensing/publication documents for API details,
-coverage limits and existing release gates.
+World `gams:random/random-provider@1.0.0` exports `wasi:random/random@0.2.0` and seeded controls (`set-seed`, `get-seed`, `get-generation`). Consumers use it as a WASI random provider. Complete types are in `plugins/random.comp/wit/package.wit`.

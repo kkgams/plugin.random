@@ -1,89 +1,28 @@
 # plugin.random
 
-GAMS WASM Project Unit for seeded random generation.
-Distribution and WIT interface versions are independent.
+Seeded random generation for [GAMS](https://github.com/kkgams/gams).
+
+| Unit | Source | Original work | License |
+| --- | --- | --- | --- |
+| Random provider | `plugins/random.comp/component.c` and `wit/package.wit` | GAMS contributors; WASI specification contributors | [Apache-2.0](LICENSE), [original dependency terms](LICENSES/), [NOTICE](NOTICE) |
+
+## Development
+
+Use the pinned toolchain with `nix develop --command make <target>`.
+
+| Command | Purpose |
+| --- | --- |
+| `make test` | Run native C and stateful Wasmtime component assertions. |
+| `make build` | Compile the C/WASI component with embedded complete terms. |
+| `make package` | Build `build.nosync/plugin.random.wasm`, `LICENSES.zip` and `SHA256SUMS`. |
+| `make open` | Build and open the local Project in the released macOS Apple Silicon Host. |
+| `make docs` | Build the pinned wiki in `build.nosync/site/`. |
+| `make serve-docs` | Serve docs; independent `DOCS_PORT` defaults to 8080. |
+| `make validate-docs` | Validate wiki content. |
+| `make clean` | Remove build.nosync and identified managed downloads; refuse tracked paths and symlinks, preserve supplied tools/Units. |
+
+The local Files View browses the Project; it is not a random-generation demo. First launch downloads pinned supporting Units. An existing Host is never updated implicitly. `make test` checks deterministic seed replay, returned byte length and seed readback both directly in C and through the component ABI using a native Rust/Wasmtime test with one persistent store/instance. These bounded tests do not establish Host integration coverage.
 
 ## API
 
-The `gams:random/random-provider@1.0.0` world exports
-`wasi:random/random@0.2.0` plus `seeded-random` controls for setting/reading
-the seed and reading the generation counter. Consumers resolve this component
-as a provider of the WASI random interface.
-
-The contract is in `plugins/random.comp/wit/package.wit`.
-Plugin Manager resolves imports; distribution filenames do not rename WIT identities.
-
-## Build and test
-
-All source/build inputs are owned by this repository; no sibling checkout is
-required for its supported build/test commands. Use the pinned Nix environment:
-
-```sh
-nix develop --command make build
-nix develop --command make test
-```
-
-Output: `dist/plugin.random.wasm`. Install it as
-`plugins/random.comp.wasm` in an external GAMS Project. Configure that Project separately.
-
-The flake and lockfiles pin the toolchain. Network access may be required to
-fetch tools/modules. `.envrc` supports `direnv allow`.
-
-`make test` runs offline integrity/publication regression tests, builds the
-components, validates WASM, extracts WIT, and checks the exact input inventory.
-It also transpiles the built components with jco and runs standalone WASM
-runtime assertions. These are bounded smoke checks, not full API or Host
-integration coverage.
-
-## Licensing and releases
-
-GAMS-authored contributions are Apache-2.0. Third-party code retains its own
-terms; see `LICENSING.md`, `THIRD-PARTY-REVIEW.md`, and `LICENSES/`.
-Source inventory and notice evidence are checked before candidate packaging.
-Changed inputs require separately authorized evidence refreshes; source snapshot
-verification remains strict and is not refreshed by release tooling.
-
-Distribution is through GitHub Releases, not npm or OCI. Pushing a matching
-`v<version.txt>` tag authorizes publication from that commit; no approval digest
-variables or required publication branch are used. Manual workflow dispatch
-verifies without publishing. Build/tests, canonical repository and tag/version
-identity, legal texts and embedded notices, evidence/source inventory, artifact
-checksums, candidate integrity, and no-overwrite checks must pass. Never reuse
-or move a published or failed tag. An existing release blocks creation.
-
-Enable immutable releases in the repository settings before publication. The
-automatic GitHub token is sufficient; no administrative settings API or extra
-policy token is used. Public release verification requires `immutable: true`.
-
-The publication workflow rehearses a private draft's bytes before publication
-and checks the anonymous public bytes afterward. Keep LICENSE, NOTICE, evidence,
-review documents, and applicable LICENSES with distributed artifacts. See the
-repository's release workflow and scripts for the enforced gates.
-
-## Local Project and documentation
-
-```sh
-nix develop --command make open  # build, then open this repository's gams.json
-make serve-docs                 # http://localhost:8080; DOCS_PORT overrides
-make validate-docs
-make docs                       # portable site under build/site/
-```
-
-`make open` builds `dist/plugin.random.wasm` and explicitly sets `GAMS_APP_CWD`
-to this repository. The local Project loads that component and the pinned
-released Files View to inspect Project files; it is not an API demo.
-The shell uses the released layout provider.
-No sibling source checkout is required.
-
-`make tools/gams.app` downloads the released macOS Apple Silicon Host only
-when absent and retains its notices under `tools/gams-release-notices/`.
-Existing downloads are not updated implicitly; macOS security checks remain
-intact. The first download and Project launch require network access.
-Pinned dependencies are declared in `gams.json`; Host caches live in ignored
-`gams_modules/`. Native GUI behavior requires separate verification.
-
-Documentation uses pinned justgook/wiki v1.4.0, with ignored engine/output
-under `build/`. `build-docs` remains a build alias. GitHub Pages runs `make docs`
-on every push to `release`, independently of component release tags.
-Enable **Settings → Pages → Source → GitHub Actions**. Existing component
-build, runtime tests, candidate checks and matching-tag release rules are unchanged.
+World `gams:random/random-provider@1.0.0` exports `wasi:random/random@0.2.0` and seeded controls (`set-seed`, `get-seed`, `get-generation`). Consumers use it as a WASI random provider. Complete types are in `plugins/random.comp/wit/package.wit`.
