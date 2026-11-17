@@ -13,6 +13,7 @@ Use the pinned toolchain with `nix develop --command make <target>`.
 | Command | Purpose |
 | --- | --- |
 | `make test` | Run native C and stateful Wasmtime component assertions. |
+| `make compile_commands.json` | Generate clangd inputs and required bindings only (no WASM build). |
 | `make build` | Compile the C/WASI component with embedded complete terms. |
 | `make package` | Build `build.nosync/plugin.random.wasm`, `LICENSES.zip` and `SHA256SUMS`. |
 | `make open` | Build and open the local Project in the released macOS Apple Silicon Host. |
@@ -22,6 +23,9 @@ Use the pinned toolchain with `nix develop --command make <target>`.
 | `make clean` | Remove all of `build.nosync/`, `tools/` and `gams_modules/`, including unmarked contents; refuse tracked files and symlinks before deleting anything. |
 
 The local Files View browses the Project; it is not a random-generation demo. First launch downloads pinned supporting Units. An existing Host is never updated implicitly. `make test` checks deterministic seed replay, returned byte length and seed readback both directly in C and through the component ABI using a native Rust/Wasmtime test with one persistent store/instance. These bounded tests do not establish Host integration coverage.
+
+Run `nix develop --offline --command make compile_commands.json` before using clangd.
+The database and index cache stay in ignored `build.nosync/`.
 
 ## API
 

@@ -13,15 +13,23 @@ WIKI_REPOSITORY := https://github.com/justgook/wiki
 WIKI_MAKEFILE := build.nosync/wiki-$(WIKI_VERSION).mk
 WIKI_ENGINE := $(abspath build.nosync/wiki-$(WIKI_VERSION))
 WIT := $(shell find plugins/random.comp/wit -type f -o -type d)
+WASI_CFLAGS := -Ibuild.nosync/random -O2 -DNDEBUG
+NATIVE_CFLAGS := -Wall -Wextra -Werror -Ibuild.nosync/random
 LEGAL := LICENSE NOTICE LICENSING.md $(sort $(wildcard LICENSES/*))
 export PYTHONDONTWRITEBYTECODE := 1
 export CARGO_TARGET_DIR := $(abspath build.nosync/cargo-target)
 export CARGO_HOME := $(abspath build.nosync/cargo-home)
 export TMPDIR := $(abspath build.nosync/tmp)
 
-.PHONY: test build package clean open docs serve-docs validate-docs
+.PHONY: compile_commands.json test build package clean open docs serve-docs validate-docs
 build: build.nosync/plugin.random.wasm
 package: build.nosync/plugin.random.wasm build.nosync/LICENSES.zip build.nosync/SHA256SUMS
+
+compile_commands.json: build.nosync/compile_commands.json
+
+build.nosync/compile_commands.json: Makefile flake.nix flake.lock scripts/compile-commands.py plugins/random.comp/component.c test/random.c build.nosync/random/random_provider.c build.nosync/random/random_provider.h | build.nosync/tmp
+	$(PYTHON) scripts/compile-commands.py --entry wasi wasm32-wasip2-clang "$(WASI_CFLAGS)" "build.nosync/random/random_provider.c plugins/random.comp/component.c" --entry native "$(NATIVE_CC)" "$(NATIVE_CFLAGS)" "test/random.c plugins/random.comp/component.c" > "$@.tmp"
+	mv "$@.tmp" "$@"
 
 build.nosync/tmp:
 	mkdir -p "$@"
@@ -35,7 +43,7 @@ build.nosync/TERMS: $(LEGAL) LICENSES Makefile | build.nosync/tmp
 
 build.nosync/plugin.random.wasm build.nosync/test/random.wasm: plugins/random.comp/component.c build.nosync/random/random_provider.c build.nosync/random/random_provider.h build.nosync/random/random_provider_component_type.o build.nosync/TERMS scripts/wasm-notices.py Makefile flake.lock
 	mkdir -p "$(@D)"
-	wasm32-wasip2-clang -o "$@" -mexec-model=reactor -Ibuild.nosync/random -O2 -DNDEBUG build.nosync/random/random_provider.c plugins/random.comp/component.c build.nosync/random/random_provider_component_type.o -Wl,--strip-all
+	wasm32-wasip2-clang -o "$@" -mexec-model=reactor $(WASI_CFLAGS) build.nosync/random/random_provider.c plugins/random.comp/component.c build.nosync/random/random_provider_component_type.o -Wl,--strip-all
 	wasm-tools strip -a "$@" -o "$@.strip"
 	mv "$@.strip" "$@"
 	$(PYTHON) scripts/wasm-notices.py embed "$@" --license build.nosync/TERMS --notice NOTICE
@@ -81,7 +89,7 @@ docs serve-docs validate-docs: $(WIKI_MAKEFILE)
 	$(MAKE) -f "$(WIKI_MAKEFILE)" "$(if $(filter docs,$@),build,$(patsubst %-docs,%,$@))" WIKI_REPOSITORY="$(WIKI_REPOSITORY)" WIKI_VERSION="$(WIKI_VERSION)" WIKI_ENGINE="$(WIKI_ENGINE)" WIKI_SOURCE="$(abspath docs)" WIKI_OUTPUT="$(abspath build.nosync/site)" PORT="$(DOCS_PORT)"
 
 build.nosync/test-random: test/random.c plugins/random.comp/component.c build.nosync/random/random_provider.h Makefile flake.lock
-	$(NATIVE_CC) -Wall -Wextra -Werror -Ibuild.nosync/random test/random.c plugins/random.comp/component.c -o "$@"
+	$(NATIVE_CC) $(NATIVE_CFLAGS) test/random.c plugins/random.comp/component.c -o "$@"
 
 test: build.nosync/test-random build.nosync/test/random.wasm
 	./build.nosync/test-random
