@@ -19,7 +19,7 @@ Use the pinned toolchain with `nix develop --command make <target>`.
 | `make docs` | Build the pinned wiki in `build.nosync/site/`. |
 | `make serve-docs` | Serve docs; independent `DOCS_PORT` defaults to 8080. |
 | `make validate-docs` | Validate wiki content. |
-| `make clean` | Remove build.nosync and identified managed downloads; refuse tracked paths and symlinks, preserve supplied tools/Units. |
+| `make clean` | Remove all of `build.nosync/`, `tools/` and `gams_modules/`, including unmarked contents; refuse tracked files and symlinks before deleting anything. |
 
 The local Files View browses the Project; it is not a random-generation demo. First launch downloads pinned supporting Units. An existing Host is never updated implicitly. `make test` checks deterministic seed replay, returned byte length and seed readback both directly in C and through the component ABI using a native Rust/Wasmtime test with one persistent store/instance. These bounded tests do not establish Host integration coverage.
 
