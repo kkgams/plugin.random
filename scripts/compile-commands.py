@@ -37,7 +37,11 @@ for target, compiler, flags, sources in args.entry:
                 if "-isysroot" in invocation:
                     platform += ["-isysroot", invocation[invocation.index("-isysroot") + 1]]
         if platform is None:
-            raise ValueError("Native Clang probe did not report a target")
+            machine = subprocess.run([*driver, "-dumpmachine"], text=True,
+                                     capture_output=True, check=True).stdout.strip()
+            if not machine:
+                raise ValueError("Native compiler probe did not report a target")
+            platform = [f"--target={machine}"]
         for line in search.splitlines():
             directory = line.strip()
             if directory.endswith(" (framework directory)"):
