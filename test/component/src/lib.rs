@@ -13,7 +13,8 @@ mod tests {
         let engine = Engine::default();
         let component = Component::from_file(
             &engine,
-            std::env::var_os("RANDOM_COMPONENT_PATH").expect("RANDOM_COMPONENT_PATH selects component"),
+            std::env::var_os("RANDOM_COMPONENT_PATH")
+                .expect("RANDOM_COMPONENT_PATH selects component"),
         )?;
         let linker = Linker::<()>::new(&engine);
         let mut store = Store::new(&engine, ());
